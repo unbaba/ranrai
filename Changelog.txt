@@ -1,0 +1,9 @@
+commit 1eee323a83a25ddd0d834254999d3ca39db83e3b
+Author: vc11807 <vc11807@unbaba-VirtualBox.(none)>
+Date:   Fri Apr 26 00:30:42 2013 +0900
+
+    init commit
+
+A       src/main.c
+
+
