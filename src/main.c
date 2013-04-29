@@ -289,5 +289,15 @@ int main(const char *a_pArg[])
 
 	iRet = ranrai_main();
 
+printf("\n");
+printf("1\n");
+printf("2\n");
+printf("3\n");
+printf("unbaba--\n");
+/* エスケープシーケンスをつかってカーソルを上に持っていく */
+printf("\x1b[2A");
+
+printf("unbaba--old\n");
+
 	return iRet;
 }
