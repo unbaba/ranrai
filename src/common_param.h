@@ -1,3 +1,10 @@
+
+#ifndef __COMMON_PARAM
+#else
+#error "re-include MidLayerStr.h"
+#endif // __COMMON_PARAM
+
+
 #define cons_MSG(...) printf(__VA_ARGS__)
 
 // ==================================================
@@ -44,3 +51,5 @@ struct MapCube
 };
 // ==================================================
 // ==================================================
+
+#define __COMMON_PARAM y

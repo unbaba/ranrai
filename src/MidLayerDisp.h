@@ -1,3 +1,10 @@
+#ifndef __MIDLAYERDISP
+#else
+#error "re-include MidLayerDisp.h"
+#endif // __MIDLAYERDISP
+
+
+
 /*
 	引数で受け取った文字列を画面更新しながら表示します
 	
@@ -9,3 +16,5 @@ extern int MLDISP_RefreshAndPrint
 (const char *a_pStr,	// 文字列
  const int   a_iStrLen	// 文字列長
 );
+
+#define __MIDLAYERDISP y

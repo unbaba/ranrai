@@ -1,3 +1,10 @@
+
+#ifndef __BATTLE
+#else
+#error "re-include Battle.h"
+#endif // __BATTLE
+
+
 #include "common_header.h"
 
 /*
@@ -35,3 +42,5 @@ extern int fight
 ( struct Character *a_sAttacker,
   struct Character *a_sDefender
 );
+
+#define __BATTLE y

@@ -23,10 +23,6 @@ cons_MSG("===================================\n");
 	return iResult;
 }
 
-
-
-
-
 int main(const char *a_pArg[])
 {
 	int iRet = ERROR_NONE;
