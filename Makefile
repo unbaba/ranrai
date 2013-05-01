@@ -9,12 +9,18 @@ TARGET_SRC += MidLayerDisp.c
 TARGET_SRC += MidLayerStr.c
 
 CC = gcc
-OUTPUT_NAME = -o ../e_main
+OUTPUT_FILE = e_main
+OUTPUT = -o ../${OUTPUT_FILE}
 
-prepartion:
+clean:
+	touch ${OUTPUT_FILE}
+	rm ${OUTPUT_FILE}
+
+preparation:
+
 
 all: 
-	cd src/ && ${CC} ${OUTPUT_NAME} ${TARGET_SRC}
+	cd src/ && ${CC} ${OUTPUT} ${TARGET_SRC}
 
-go: all
+rebuild: clean preparation all
 
