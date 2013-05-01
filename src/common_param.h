@@ -1,11 +1,14 @@
-
 #ifndef __COMMON_PARAM
 #else
 #error "re-include MidLayerStr.h"
 #endif // __COMMON_PARAM
 
-
+//#define ENABLE_CONS_MSG
+#ifdef ENABLE_CONS_MSG
 #define cons_MSG(...) printf(__VA_ARGS__)
+#else
+#define cons_MSG(...)
+#endif //ENABLE_CONS_MSG
 
 // ==================================================
 // ===== エラーコード定義
@@ -32,6 +35,8 @@ typedef int ML_BOOL;
 // ===== キャラクターパラメータ定義
 struct Character
 {
+	int iType;		// 属性 0:主人公 1:敵 等
+
 	int iHp;		// HP
 	int iPow;		// 力
 	int iDef;		// 守備力

@@ -1,4 +1,48 @@
+#include <string.h>
 #include "MapManager.h"
+
+/*
+キャラクターの現在の位置情報を元にマップを更新します
+*/
+
+static void DrawMap
+(const struct MapCube *a_Map,	// Map
+ const int a_iMapSize			// MapSize
+)
+{
+	char pStr[1024] = {0};
+	struct MapCube pMapCube;
+
+	int i = 0;
+	for(i=0; i<a_iMapSize; i++)
+	{
+		pMapCube = a_Map[i];
+		if ( NULL != pMapCube.pChar )
+		{
+			switch( pMapCube.pChar->iType )
+			{
+				case 0 :
+						strcat(pStr, "+");
+						break;
+				case 1 :
+						strcat(pStr, "*");
+						break;
+				default :
+						strcat(pStr, "9"); // Don't Take this!
+						break;
+			}
+		}
+		else
+		{
+			strcat(pStr, "-");
+		}
+	}
+	
+	strcat(pStr, "\n");
+	MLDISP_RefreshAndPrint(pStr, 1024);
+
+	return;
+}
 
 extern int MapManager_Start(void)
 {
@@ -19,6 +63,7 @@ extern int MapManager_Start(void)
 
 	//make_player();
 	struct Character sPlayer;
+	sPlayer.iType = 0;
 	sPlayer.iHp  = 20;
 	sPlayer.iPow = 5;
 	sPlayer.iDef = 5;
@@ -26,6 +71,7 @@ extern int MapManager_Start(void)
 	
 	//make_enemy();
 	struct Character sEnemy;
+	sEnemy.iType = 1;
 	sEnemy.iHp  = 15;
 	sEnemy.iPow =  3;
 	sEnemy.iDef =  3;
@@ -107,6 +153,8 @@ cons_MSG("ERROR : unexpected return. fight() Result is 99!!\n");
 			// continue
 			i++;
 		}
+		
+		DrawMap(Map, 10);
 		
 		bHadPlayerWalk = ML_FALSE;
 		bHadEnemyWalk  = ML_FALSE;
