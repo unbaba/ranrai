@@ -44,13 +44,66 @@ static void DrawMap
 	return;
 }
 
+extern signed int getWalk
+(
+const char a_cKey,
+const struct Character a_sPlayer
+)
+{
+	int iRet = 0;
+
+	switch (a_cKey)
+	{
+		case 0x41 :
+			iRet = 0;
+			break;
+		case 0x42 :
+			iRet = 0;
+			break;
+		case 0x43 :
+			iRet = 1;
+			break;
+		case 0x44 :
+			iRet = -1;
+			break;
+		default :
+			iRet = 0;
+			break;
+	}
+	return iRet;
+}
+
+#define MAP_X_MAX 10
+
+extern ML_BOOL IsWalkingToWall
+(const struct MapCube *a_Map,
+ const struct Character *a_sCharacter,
+ const signed int a_iXMove
+)
+{
+	ML_BOOL bRet = ML_FALSE;
+
+	if ( a_sCharacter->iColPos + a_iXMove < 0
+		 || ( (MAP_X_MAX-1) == (a_sCharacter->iColPos + a_iXMove) )
+	   )
+	{
+		bRet = ML_TRUE;
+	}
+	else
+	{
+		bRet = ML_FALSE;
+	}
+	
+	return bRet;
+}
+
 extern int MapManager_Start(void)
 {
 	ML_BOOL bJudge = ML_FALSE;
 	ML_BOOL bHadPlayerWalk = ML_FALSE;
 	ML_BOOL bHadEnemyWalk  = ML_FALSE;
 	int iResult = 0;
-	struct MapCube Map[10] = {0};
+	struct MapCube Map[MAP_X_MAX] = {0};
 	struct BattleResult BattleResult = {0};
 	char cKey = 0x00;
 
@@ -93,26 +146,43 @@ extern int MapManager_Start(void)
 		// プレイヤーフェイズ
 		int iCnt = 0;
 		
-		ML_GetKey(&cKey);
 		while ( !(0x40 < cKey && cKey < 0x45) )
 		{
 			ML_GetKey(&cKey);
-		}
-		
-		if (NULL == Map[sPlayer.iColPos+1].pChar)
-		{
-			Map[sPlayer.iColPos+1].pChar = Map[sPlayer.iColPos].pChar;
-			Map[sPlayer.iColPos].pChar = NULL;
-			sPlayer.iColPos++;
-		}
-		else
-		{
-			iResult = fight(&sPlayer, &sEnemy, &BattleResult);
-		}
-		DrawMap(Map, 10);
-		MLDISP_DispResult(&BattleResult);
-		ML_GetKey(&cKey);
+			signed int iXMove = getWalk(cKey, sPlayer);
 
+			if ( 0 != iXMove ) // 移動せよと入力された
+			{
+				if ( !IsWalkingToWall(Map, &sPlayer, iXMove) // 移動先が壁じゃない
+					 && NULL == Map[sPlayer.iColPos + iXMove].pChar) // 移動先に何も居ない
+				{ // 移動可能
+					Map[sPlayer.iColPos + iXMove].pChar = Map[sPlayer.iColPos].pChar;
+					Map[sPlayer.iColPos].pChar = NULL;
+					sPlayer.iColPos = sPlayer.iColPos + iXMove;
+					DrawMap(Map, 10);
+					break;
+				}
+				else if ( !(NULL == Map[sPlayer.iColPos + iXMove].pChar) ) // 移動先に何か居る
+				{
+					iResult = fight(&sPlayer, &sEnemy, &BattleResult);
+					DrawMap(Map, 10);
+					MLDISP_DispResult(&BattleResult);
+					break;
+				}
+				else
+				{
+					// nothing to do.
+					DrawMap(Map, 10);
+					printf("nothing to do.\n");
+				}
+			}
+			else
+			{
+					DrawMap(Map, 10);
+					printf("nothing to do. iXMove is %i. \n", iXMove);
+			}
+		}
+sleep(1);
 		// 敵フェイズ
 		if ( NULL == Map[sEnemy.iColPos-1].pChar )
 		{
@@ -150,6 +220,7 @@ cons_MSG("ERROR : unexpected return. fight() Result is 99!!\n");
 		DrawMap(Map, 10);
 		MLDISP_DispResult(&BattleResult);
 
+		cKey = 0x00;
 		bHadPlayerWalk = ML_FALSE;
 		bHadEnemyWalk  = ML_FALSE;
 	}
