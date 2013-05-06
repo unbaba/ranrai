@@ -111,6 +111,7 @@ extern int fight
 	a_sResult->sSrc = a_sAttacker;
 	a_sResult->sDst = a_sDefender;
 	a_sResult->iDamage = iDamage;
+	a_sResult->bDisplayed = ML_FALSE;
 
 	return iResult;
 }

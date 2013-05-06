@@ -41,6 +41,7 @@ struct BattleResult
 	struct Character *sDst;
 	int iResult;
 	int iDamage;
+	ML_BOOL bDisplayed;
 };
 
 // ==================================================

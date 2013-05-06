@@ -111,6 +111,7 @@ printf("iResult is '%i' \n", a_sResult->iResult);
 
 	if ( (NULL != a_sResult->sSrc)
 		 && (NULL != a_sResult->sDst)
+		 && !(a_sResult->bDisplayed) // 既に表示したならスキップ
 	   )
 	{
 		bRet = ML_TRUE;
@@ -120,6 +121,7 @@ printf("iResult is '%i' \n", a_sResult->iResult);
 		 && (BATTLE_RESULT_DESTROYED == a_sResult->iResult) 
 	   )
 	{
+printf("%s's turn. iResult is '%i' \n", a_sResult->sSrc->pName, a_sResult->iResult);
 		printf("==================================================\n");
 		printf("%s Attacked %s, %i Damage. \n", a_sResult->sSrc->pName, a_sResult->sDst->pName, a_sResult->iDamage);
 		printf("%s Destroyed %s !! \n", a_sResult->sSrc->pName, a_sResult->sDst->pName);
@@ -137,5 +139,6 @@ printf("iResult is '%i' \n", a_sResult->iResult);
 	{
 	}
 
+	a_sResult->bDisplayed = ML_TRUE;
 	return bRet;
 }
