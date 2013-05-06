@@ -51,6 +51,8 @@ extern int MapManager_Start(void)
 	ML_BOOL bHadEnemyWalk  = ML_FALSE;
 	int iResult = 0;
 	struct MapCube Map[10] = {0};
+	struct BattleResult BattleResult = {0};
+	char cKey = 0x00;
 
 	// init!
 	{
@@ -64,6 +66,7 @@ extern int MapManager_Start(void)
 	//make_player();
 	struct Character sPlayer;
 	sPlayer.iType = 0;
+	strcpy(sPlayer.pName, "Shiren");
 	sPlayer.iHp  = 20;
 	sPlayer.iPow = 5;
 	sPlayer.iDef = 5;
@@ -72,6 +75,7 @@ extern int MapManager_Start(void)
 	//make_enemy();
 	struct Character sEnemy;
 	sEnemy.iType = 1;
+	strcpy(sEnemy.pName, "Mamuru");
 	sEnemy.iHp  = 15;
 	sEnemy.iPow =  3;
 	sEnemy.iDef =  3;
@@ -87,60 +91,49 @@ extern int MapManager_Start(void)
 	{
 		// お互い移動している ○→　　←■ ぶつかったら戦闘
 		// プレイヤーフェイズ
+		int iCnt = 0;
+		
+		ML_GetKey(&cKey);
+		while ( !(0x40 < cKey && cKey < 0x45) )
+		{
+			ML_GetKey(&cKey);
+		}
+		
 		if (NULL == Map[sPlayer.iColPos+1].pChar)
 		{
 			Map[sPlayer.iColPos+1].pChar = Map[sPlayer.iColPos].pChar;
 			Map[sPlayer.iColPos].pChar = NULL;
 			sPlayer.iColPos++;
-cons_MSG("========== Player Walk ===========\n");
-cons_MSG("Player is now %i, Enemy is now %i\n", sPlayer.iColPos, sEnemy.iColPos);
-cons_MSG("===================================\n");
 		}
 		else
 		{
-cons_MSG("========== Player Attacked ==========\n");
-			iResult = fight(&sPlayer, &sEnemy);
+			iResult = fight(&sPlayer, &sEnemy, &BattleResult);
 		}
-cons_MSG("========== Player Finish ===========\n");
-cons_MSG("Result      : %i\n", iResult);
-cons_MSG("Player is now %i, Enemy is now %i\n", sPlayer.iColPos, sEnemy.iColPos);
-cons_MSG("Player's HP : %i\n", sPlayer.iHp);
-cons_MSG("Enemy's  HP : %i\n", sEnemy.iHp);
-cons_MSG("===================================\n");
-		
+		DrawMap(Map, 10);
+		MLDISP_DispResult(&BattleResult);
+		ML_GetKey(&cKey);
+
 		// 敵フェイズ
 		if ( NULL == Map[sEnemy.iColPos-1].pChar )
 		{
 			Map[sEnemy.iColPos-1].pChar = Map[sEnemy.iColPos].pChar;
 			Map[sEnemy.iColPos].pChar = NULL;
 			sEnemy.iColPos--;
-cons_MSG("========== Enemy Walk ===========\n");
-cons_MSG("Player is now %i, Enemy is now %i\n", sPlayer.iColPos, sEnemy.iColPos);
-cons_MSG("===================================\n");
 		}
 		else
 		{
-cons_MSG("========== Enemy Attacked ==========\n");
-			if ( !(100 < iResult) && // iResult suggests fight is not finished.
+			if ( !((BATTLE_RESULT_DESTROYED-1) < iResult) && // iResult suggests fight is not finished.
 				 0 < sEnemy.iHp      // Enemy Alive. 
-			   ) 
+			   )
 			{
-				iResult = fight(&sEnemy, &sPlayer);
+				iResult = fight(&sEnemy, &sPlayer, &BattleResult);
 			}
 			else
 			{
-cons_MSG("no. Enemy is already broken!!\n");
 			}
 		}
 
-cons_MSG("========== Enemy  Finish ===========\n");
-cons_MSG("Result      : %i\n", iResult);
-cons_MSG("Player is now %i, Enemy is now %i\n", sPlayer.iColPos, sEnemy.iColPos);
-cons_MSG("Player's HP : %i\n", sPlayer.iHp);
-cons_MSG("Enemy's  HP : %i\n", sEnemy.iHp);
-cons_MSG("===================================\n");
-
-		if ( 100 < iResult )
+		if ( (BATTLE_RESULT_DESTROYED-1) < iResult )
 		{
 			break;
 		}
@@ -155,10 +148,14 @@ cons_MSG("ERROR : unexpected return. fight() Result is 99!!\n");
 		}
 		
 		DrawMap(Map, 10);
-		
+		MLDISP_DispResult(&BattleResult);
+
 		bHadPlayerWalk = ML_FALSE;
 		bHadEnemyWalk  = ML_FALSE;
 	}
 		
+	DrawMap(Map, 10);
+	MLDISP_DispResult(&BattleResult);
+
 	return iResult;
 }

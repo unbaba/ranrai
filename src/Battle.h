@@ -40,7 +40,8 @@ static ML_BOOL IsAlive(const struct Character *a_sCharacter);
 */
 extern int fight
 ( struct Character *a_sAttacker,
-  struct Character *a_sDefender
+  struct Character *a_sDefender,
+  struct BattleResult *a_sResult
 );
 
 #define __BATTLE y

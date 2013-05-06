@@ -19,8 +19,6 @@ enum error_code
 // ==================================================
 // ==================================================
 
-
-
 // ==================================================
 // ===== boolean 定義
 typedef int ML_BOOL;
@@ -30,12 +28,28 @@ typedef int ML_BOOL;
 // ==================================================
 
 
+// ==================================================
+// ===== 戦闘結果
+#define BATTLE_RESULT_NO_JUDGE	  0
+#define BATTLE_RESULT_DESTROYED	101
+#define BATTLE_RESULT_LOST		102
+#define BATTLE_RESULT_DRAW		108
+
+struct BattleResult
+{
+	struct Character *sSrc;
+	struct Character *sDst;
+	int iResult;
+	int iDamage;
+};
 
 // ==================================================
 // ===== キャラクターパラメータ定義
 struct Character
 {
 	int iType;		// 属性 0:主人公 1:敵 等
+
+	char pName[256];
 
 	int iHp;		// HP
 	int iPow;		// 力

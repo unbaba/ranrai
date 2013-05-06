@@ -3,6 +3,8 @@
 #error "re-include MidLayerStr.h"
 #endif // __MIDLAYERSTR
 
+#include "common_header.h"
+
 extern int MLSTR_GetHowManyLines
 (const char *a_pStr,	// 文字列
  const int   a_iStrLen	// 文字列長

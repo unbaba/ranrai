@@ -3,8 +3,6 @@
 #error "re-include MidLayerDisp.h"
 #endif // __MIDLAYERDISP
 
-
-
 /*
 	引数で受け取った文字列を画面更新しながら表示します
 	

@@ -10,26 +10,17 @@
 		ML_TRUE  : 決着ついた
 		ML_FALSE : 決着つかず
 */
-static ML_BOOL Attack
+static int Attack
 ( struct Character *a_sAttacker,
   struct Character *a_sDefender
 )
 {
-	ML_BOOL bRet = ML_FALSE;
+	int iDamage = -1;
 
-	a_sDefender->iHp = a_sDefender->iHp - a_sAttacker->iPow;
+	iDamage = a_sAttacker->iPow;
+	a_sDefender->iHp = a_sDefender->iHp - iDamage;
 	
-	// judge
-	if ( 0 < a_sDefender->iHp )
-	{
-		// Enemy is NOT Broken.
-	}
-	else
-	{
-		bRet = ML_TRUE; // Enemy is Broken.
-	}
-	
-	return bRet;
+	return iDamage;
 }
 
 /*
@@ -63,22 +54,22 @@ static ML_BOOL IsAlive(const struct Character *a_sCharacter)
 */
 extern int fight
 ( struct Character *a_sAttacker,
-  struct Character *a_sDefender
+  struct Character *a_sDefender,
+  struct BattleResult *a_sResult
 )
 {
 	ML_BOOL bJudge = ML_FALSE;
 	int iResult = 99;
+	int iDamage = -1;
 
 	// <========== Start Of Turn ==========>
 
 	// <========== Turn main Start ==========>
-	bJudge = Attack(a_sAttacker, a_sDefender);
-
-cons_MSG("bJudge : %s \n", bJudge?"True":"False");
-cons_MSG("Attacker's HP : %i\n", a_sAttacker->iHp);
-cons_MSG("Defender's  HP : %i\n", a_sDefender->iHp);
-cons_MSG("===================================\n", "");
-
+	iDamage = Attack(a_sAttacker, a_sDefender);
+/*
+	a_sResult->sSrc = a_sAttacker;
+	a_sResult->sDst = a_sDefender;
+*/
 	// <========== Turn main   End ==========>
 
 	// <========== End   Of Turn ==========>
@@ -93,12 +84,12 @@ cons_MSG("===================================\n", "");
 			if (bEnemyAlive)
 			{
 				// 引き分け
-				iResult = 0;
+				iResult = BATTLE_RESULT_NO_JUDGE;
 			}
 			else
 			{
 				// やっつけた
-				iResult = 101;
+				iResult = BATTLE_RESULT_DESTROYED;
 			}
 		}
 		else
@@ -106,15 +97,20 @@ cons_MSG("===================================\n", "");
 			if (bEnemyAlive)
 			{
 				// 負けた
-				iResult = 102;
+				iResult = BATTLE_RESULT_LOST;
 			}
 			else
 			{
 				// 相打ち
-				iResult = 108;
+				iResult = BATTLE_RESULT_DRAW;
 			}
 		}
 	}
+	a_sResult->iResult = iResult;
 	
+	a_sResult->sSrc = a_sAttacker;
+	a_sResult->sDst = a_sDefender;
+	a_sResult->iDamage = iDamage;
+
 	return iResult;
 }
