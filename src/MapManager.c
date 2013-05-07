@@ -21,10 +21,13 @@ static void DrawMap
 		{
 			switch( pMapCube.pChar->iType )
 			{
-				case 0 :
+				case CHAR_TYPE_PLAYER :
+						strcat(pStr, "@");
+						break;
+				case CHAR_TYPE_ENEMY :
 						strcat(pStr, "+");
 						break;
-				case 1 :
+				case CHAR_TYPE_WALL :
 						strcat(pStr, "*");
 						break;
 				default :
@@ -34,7 +37,7 @@ static void DrawMap
 		}
 		else
 		{
-			strcat(pStr, "-");
+			strcat(pStr, " ");
 		}
 	}
 	
@@ -72,8 +75,6 @@ const struct Character a_sPlayer
 	}
 	return iRet;
 }
-
-#define MAP_X_MAX 10
 
 extern ML_BOOL IsWalkingToWall
 (const struct MapCube *a_Map,
@@ -118,29 +119,39 @@ extern int MapManager_Start(void)
 
 	//make_player();
 	struct Character sPlayer;
-	sPlayer.iType = 0;
+	sPlayer.iType = CHAR_TYPE_PLAYER;
 	strcpy(sPlayer.pName, "Shiren");
 	sPlayer.iHp  = 20;
 	sPlayer.iPow = 5;
 	sPlayer.iDef = 5;
-	sPlayer.iColPos = 0;
+	sPlayer.iColPos = 1;
 	
 	//make_enemy();
 	struct Character sEnemy;
-	sEnemy.iType = 1;
+	sEnemy.iType = CHAR_TYPE_ENEMY;
 	strcpy(sEnemy.pName, "Mamuru");
 	sEnemy.iHp  = 15;
 	sEnemy.iPow =  3;
 	sEnemy.iDef =  3;
 	sEnemy.iColPos = 9;
 
+	struct Character sWall;
+	sWall.iType = CHAR_TYPE_WALL;
+	strcpy(sWall.pName, "Wall");
+	sWall.iHp  = 15;
+	sWall.iPow =  3;
+	sWall.iDef =  3;
+	sWall.iColPos = 10;
+
+
 	// Character の 初期配置
 	Map[sPlayer.iColPos].pChar = &sPlayer;
 	Map[sEnemy.iColPos].pChar = &sEnemy;
+	Map[sWall.iColPos].pChar = &sWall;
 
 	// 決着がつくまでループ
 	int i = 0;
-	while(!bJudge)
+	while(1)
 	{
 		// お互い移動している ○→　　←■ ぶつかったら戦闘
 		// プレイヤーフェイズ
@@ -159,26 +170,26 @@ extern int MapManager_Start(void)
 					Map[sPlayer.iColPos + iXMove].pChar = Map[sPlayer.iColPos].pChar;
 					Map[sPlayer.iColPos].pChar = NULL;
 					sPlayer.iColPos = sPlayer.iColPos + iXMove;
-					DrawMap(Map, 10);
+					DrawMap(Map, MAP_X_MAX);
 					break;
 				}
 				else if ( !(NULL == Map[sPlayer.iColPos + iXMove].pChar) ) // 移動先に何か居る
 				{
 					iResult = fight(&sPlayer, &sEnemy, &BattleResult);
-					DrawMap(Map, 10);
-					MLDISP_DispResult(&BattleResult);
+					DrawMap(Map, MAP_X_MAX);
+					MLDISP_DispResult(&BattleResult, ML_FALSE);
 					break;
 				}
 				else
 				{
 					// nothing to do.
-					DrawMap(Map, 10);
+					DrawMap(Map, MAP_X_MAX);
 					printf("nothing to do.\n");
 				}
 			}
 			else
 			{
-					DrawMap(Map, 10);
+					DrawMap(Map, MAP_X_MAX);
 					printf("nothing to do. iXMove is %i. \n", iXMove);
 			}
 		}
@@ -217,16 +228,16 @@ cons_MSG("ERROR : unexpected return. fight() Result is 99!!\n");
 			i++;
 		}
 		
-		DrawMap(Map, 10);
-		MLDISP_DispResult(&BattleResult);
+		DrawMap(Map, MAP_X_MAX);
+		MLDISP_DispResult(&BattleResult, ML_FALSE);
 
 		cKey = 0x00;
 		bHadPlayerWalk = ML_FALSE;
 		bHadEnemyWalk  = ML_FALSE;
 	}
 		
-	DrawMap(Map, 10);
-	MLDISP_DispResult(&BattleResult);
+	DrawMap(Map, MAP_X_MAX);
+	MLDISP_DispResult(&BattleResult, ML_TRUE);
 
 	return iResult;
 }

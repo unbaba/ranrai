@@ -103,7 +103,8 @@ ML_BOOL ML_GetKey(char *a_pRet)
 	結果を表示します
 */
 extern ML_BOOL MLDISP_DispResult
-(struct BattleResult *a_sResult
+(      struct BattleResult *a_sResult,
+ const        ML_BOOL       a_bForceDisp // 既に表示したことのあるメッセージでも表示する
 )
 {
 	ML_BOOL bRet = ML_FALSE;
@@ -111,7 +112,7 @@ printf("iResult is '%i' \n", a_sResult->iResult);
 
 	if ( (NULL != a_sResult->sSrc)
 		 && (NULL != a_sResult->sDst)
-		 && !(a_sResult->bDisplayed) // 既に表示したならスキップ
+		 && (a_bForceDisp || !(a_sResult->bDisplayed) ) // 強制表示支持が無く、更に既に表示しているならスキップ
 	   )
 	{
 		bRet = ML_TRUE;
@@ -131,6 +132,7 @@ printf("%s's turn. iResult is '%i' \n", a_sResult->sSrc->pName, a_sResult->iResu
 			  && ( BATTLE_RESULT_NO_JUDGE == a_sResult->iResult )
 			)
 	{
+printf("%s's turn. iResult is '%i' \n", a_sResult->sSrc->pName, a_sResult->iResult);
 		printf("==================================================\n");
 		printf("%s Attacked %s, %i Damage. \n", a_sResult->sSrc->pName, a_sResult->sDst->pName, a_sResult->iDamage);
 		printf("==================================================\n");

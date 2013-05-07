@@ -11,6 +11,10 @@
 #endif //ENABLE_CONS_MSG
 
 // ==================================================
+// ===== マップサイズ定義
+#define MAP_X_MAX 11 // X方向
+
+// ==================================================
 // ===== エラーコード定義
 enum error_code
 {
@@ -46,6 +50,9 @@ struct BattleResult
 
 // ==================================================
 // ===== キャラクターパラメータ定義
+#define CHAR_TYPE_PLAYER	0	// 主人公
+#define CHAR_TYPE_ENEMY		1	// 敵
+#define CHAR_TYPE_WALL		11	// 壁
 struct Character
 {
 	int iType;		// 属性 0:主人公 1:敵 等
