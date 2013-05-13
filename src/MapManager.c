@@ -6,20 +6,20 @@
 */
 
 static void DrawMap
-(const struct MapCube *a_Map,	// Map
+(struct MapCube *a_Map,	// Map
  const int a_iMapSize			// MapSize
 )
 {
 	char pStr[1024] = {0};
-	struct MapCube pMapCube;
+	struct MapCube *pMapCube = a_Map;
 
 	int i = 0;
-	for(i=0; i<a_iMapSize; i++)
+	int y = 0;
+	while( NULL != pMapCube)
 	{
-		pMapCube = a_Map[i];
-		if ( NULL != pMapCube.pChar )
+		if ( NULL != pMapCube->pChar )
 		{
-			switch( pMapCube.pChar->iType )
+			switch( pMapCube->pChar->iType )
 			{
 				case CHAR_TYPE_PLAYER :
 						strcat(pStr, "@");
@@ -39,9 +39,8 @@ static void DrawMap
 		{
 			strcat(pStr, " ");
 		}
+		pMapCube = pMapCube->pNext;
 	}
-	
-	strcat(pStr, "\n");
 	MLDISP_RefreshAndPrint(pStr, 1024);
 
 	return;
@@ -104,18 +103,23 @@ extern int MapManager_Start(void)
 	ML_BOOL bHadPlayerWalk = ML_FALSE;
 	ML_BOOL bHadEnemyWalk  = ML_FALSE;
 	int iResult = 0;
-	struct MapCube Map[MAP_X_MAX] = {0};
 	struct BattleResult BattleResult = {0};
 	char cKey = 0x00;
 
-	// init!
+	// Map init!
+/*
 	{
 		int i = 0;
-		for(i=0;i<10;i++)
+		int y = 0;
+		for(y=0; y<MAP_Y_MAX ; y++)
 		{
-			Map[i].pChar = NULL;
+			for(i=0;i<10;i++)
+			{
+				Map[y][i].pChar = NULL;
+			}
 		}
 	}
+*/
 
 	//make_player();
 	struct Character sPlayer;
@@ -125,7 +129,12 @@ extern int MapManager_Start(void)
 	sPlayer.iPow = 5;
 	sPlayer.iDef = 5;
 	sPlayer.iColPos = 1;
-	
+
+	struct MapCube Map1 = {0};
+	Map1.pChar = &sPlayer;
+	Map1.x = 0;
+	Map1.y = 0;
+
 	//make_enemy();
 	struct Character sEnemy;
 	sEnemy.iType = CHAR_TYPE_ENEMY;
@@ -135,6 +144,11 @@ extern int MapManager_Start(void)
 	sEnemy.iDef =  3;
 	sEnemy.iColPos = 9;
 
+	struct MapCube Map2 = {0};
+	Map2.pChar = &sEnemy;
+	Map2.x = 1;
+	Map2.y = 0;
+
 	struct Character sWall;
 	sWall.iType = CHAR_TYPE_WALL;
 	strcpy(sWall.pName, "Wall");
@@ -143,13 +157,18 @@ extern int MapManager_Start(void)
 	sWall.iDef =  3;
 	sWall.iColPos = 10;
 
+	struct MapCube Map3 = {0};
+	Map3.pChar = &sWall;
+	Map3.x = 2;
+	Map3.y = 0;
 
 	// Character の 初期配置
-	Map[sPlayer.iColPos].pChar = &sPlayer;
-	Map[sEnemy.iColPos].pChar = &sEnemy;
-	Map[sWall.iColPos].pChar = &sWall;
+	Map1.pNext = &Map2;
+	Map2.pNext = &Map3;
+	Map3.pNext = NULL;
 
 	// 決着がつくまでループ
+/*
 	int i = 0;
 	while(1)
 	{
@@ -164,41 +183,41 @@ extern int MapManager_Start(void)
 
 			if ( 0 != iXMove ) // 移動せよと入力された
 			{
-				if ( !IsWalkingToWall(Map, &sPlayer, iXMove) // 移動先が壁じゃない
-					 && NULL == Map[sPlayer.iColPos + iXMove].pChar) // 移動先に何も居ない
+				if ( !IsWalkingToWall(Map, sPlayer, iXMove) // 移動先が壁じゃない
+					 && NULL == Map[0][sPlayer.iColPos + iXMove].pChar) // 移動先に何も居ない
 				{ // 移動可能
-					Map[sPlayer.iColPos + iXMove].pChar = Map[sPlayer.iColPos].pChar;
-					Map[sPlayer.iColPos].pChar = NULL;
+					Map[0][sPlayer.iColPos + iXMove].pChar = Map[0][sPlayer.iColPos].pChar;
+					Map[0][sPlayer.iColPos].pChar = NULL;
 					sPlayer.iColPos = sPlayer.iColPos + iXMove;
-					DrawMap(Map, MAP_X_MAX);
+					DrawMap(&Map, MAP_X_MAX);
 					break;
 				}
-				else if ( !(NULL == Map[sPlayer.iColPos + iXMove].pChar) ) // 移動先に何か居る
+				else if ( !(NULL == Map[0][sPlayer.iColPos + iXMove].pChar) ) // 移動先に何か居る
 				{
 					iResult = fight(&sPlayer, &sEnemy, &BattleResult);
-					DrawMap(Map, MAP_X_MAX);
+					DrawMap(&Map, MAP_X_MAX);
 					MLDISP_DispResult(&BattleResult, ML_FALSE);
 					break;
 				}
 				else
 				{
 					// nothing to do.
-					DrawMap(Map, MAP_X_MAX);
+					DrawMap(&Map, MAP_X_MAX);
 					printf("nothing to do.\n");
 				}
 			}
 			else
 			{
-					DrawMap(Map, MAP_X_MAX);
+					DrawMap(&Map, MAP_X_MAX);
 					printf("nothing to do. iXMove is %i. \n", iXMove);
 			}
 		}
 sleep(1);
 		// 敵フェイズ
-		if ( NULL == Map[sEnemy.iColPos-1].pChar )
+		if ( NULL == Map[0][sEnemy.iColPos-1].pChar )
 		{
-			Map[sEnemy.iColPos-1].pChar = Map[sEnemy.iColPos].pChar;
-			Map[sEnemy.iColPos].pChar = NULL;
+			Map[0][sEnemy.iColPos-1].pChar = Map[0][sEnemy.iColPos].pChar;
+			Map[0][sEnemy.iColPos].pChar = NULL;
 			sEnemy.iColPos--;
 		}
 		else
@@ -236,7 +255,8 @@ cons_MSG("ERROR : unexpected return. fight() Result is 99!!\n");
 		bHadEnemyWalk  = ML_FALSE;
 	}
 		
-	DrawMap(Map, MAP_X_MAX);
+*/
+	DrawMap(&Map1, MAP_X_MAX);
 	MLDISP_DispResult(&BattleResult, ML_TRUE);
 
 	return iResult;
